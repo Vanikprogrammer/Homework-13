@@ -6,10 +6,17 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import entitys.Activity;
 import entitys.ActivityResponse;
 import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Created by 1 on 25.09.2017.
@@ -45,23 +52,37 @@ public class Window extends Application {
     }
 
     public void start(Stage primaryStage) throws Exception {
-        getActivity("UCdIp4tcWOGihEQKYxzSlFaQ");
+        final YoutubeSearch youtubeSearch = new YoutubeSearch();
+        primaryStage.setHeight(600);
+        primaryStage.setWidth(600);
+        final Pane root = new Pane();
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+
+        final TextField textField = new TextField("UCdIp4tcWOGihEQKYxzSlFaQ");
+        textField.setTranslateX(10);
+        textField.setTranslateY(20);
+
+        Button button = new Button("Search");
+        button.setTranslateX(10);
+        button.setTranslateY(40);
+
+        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                try {
+                    youtubeSearch.show(textField.getText());
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        root.getChildren().addAll(button);
+        primaryStage.show();
 
         }
-    private void getActivity(String channelId) throws UnirestException {
-        HttpResponse<ActivityResponse> response = (HttpResponse<ActivityResponse>) Unirest.get("https://www.googleapis.com/youtube/v3/activities")
-                .queryString("part", "contentDetails")
-                .queryString("channelId", channelId)
-                .queryString("maxResults", "1")
-                .queryString("key", "AIzaSyCT5uQTJSRDdTZJXVDm30wUsii3oNNa11Q")
-                .asObjectAsync(ActivityResponse.class);
 
-        ActivityResponse activityResponse = response.getBody();
-        for(int i = 0; i < activityResponse.items.size(); i++){
-            Activity activity = activityResponse.items.get(i);
-            System.out.println(activity.snippet.publishedAt);
-            System.out.println(activity.snippet.title);
-        }
-
-    }
 }
