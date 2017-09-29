@@ -16,7 +16,7 @@ public class YoutubeSearch {
         Future<HttpResponse<ActivityResponse>> response = Unirest.get("https://www.googleapis.com/youtube/v3/activities")
                 .queryString("part", "snippet")
                 .queryString("channelId", channelId)
-                .queryString("maxResults", "1")
+                .queryString("maxResults", "5")
                 .queryString("key", "AIzaSyCT5uQTJSRDdTZJXVDm30wUsii3oNNa11Q")
                 .asObjectAsync(ActivityResponse.class);
 
@@ -24,8 +24,9 @@ public class YoutubeSearch {
 
     }
     public void show(String channelId) throws InterruptedException, ExecutionException, UnirestException {
-        for(int i = 0; i < getActivityResponse(channelId).items.size(); i++){
-            Activity activity = getActivityResponse(channelId).items.get(i);
+        ActivityResponse activityResponse = getActivityResponse(channelId);
+        for(int i = 0; i < activityResponse.items.size(); i++){
+            Activity activity = activityResponse.items.get(i);
             System.out.println(activity.snippet.publishedAt);
             System.out.println(activity.snippet.title);
             System.out.println(activity.snippet.thumbnails.channelTitle);
