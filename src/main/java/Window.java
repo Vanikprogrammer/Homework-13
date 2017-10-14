@@ -5,6 +5,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import entitys.Activity;
 import entitys.ActivityResponse;
+import entitys.YoutubeSearch;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,7 +24,8 @@ import java.util.concurrent.Future;
  * Created by 1 on 25.09.2017.
  */
 public class Window extends Application {
-
+    private static String URL = "http://www.youtube.com/embed/";
+    private static String AUTO_PLAY = "?autoplay=1";
 
     private static void initApplication() {
         Unirest.setObjectMapper(new ObjectMapper() {
@@ -67,12 +70,34 @@ public class Window extends Application {
         button.setTranslateX(10);
         button.setTranslateY(40);
 
+        Button play = new Button("View");
+        button.setTranslateX(10);
+        button.setTranslateY(60);
+
         button.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 try {
                     youtubeSearch.show(textField.getText());
+                    youtubeSearch.getActiv(textField.getText());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
                 } catch (UnirestException e) {
                     e.printStackTrace();
+                }
+
+            }
+        });
+
+        play.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                try {
+                    for (int i = 0; i < youtubeSearch.getItemSize(textField.getText(),i); i++){
+                        final WebView webview = new WebView();
+                        webview.getEngine().load(URL+youtubeSearch.getVideoId(textField.getText(),i)+AUTO_PLAY);
+                        webview.setPrefSize(640, 390);
+                    }
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -80,7 +105,8 @@ public class Window extends Application {
                 }
             }
         });
-        root.getChildren().addAll(button);
+
+        root.getChildren().addAll(button,play);
         primaryStage.show();
 
         }
